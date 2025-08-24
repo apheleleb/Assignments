@@ -171,3 +171,33 @@ group by
 having
 	sum(ur.USAGE_EVENT_REVENUE)>=30
 
+
+	--select*from CombinedSubscribers where Is_Master_Record = 1
+
+
+	--find qualified subscribers making high revenue
+	select [Location], First_Name, Date_Of_Birth
+	from CombinedSubscribers
+	where First_Name in ('Gugulethu', 'Mlungisi', 'Thalente')
+
+
+--how much money each city makes
+SELECT
+    l.City_Name,
+    SUM(ur.USAGE_EVENT_REVENUE) AS Total_Qualifying_Revenue,
+    CAST(DATEADD(week, DATEDIFF(week, 0, ur.usage_event_date_time), 0) AS DATE) AS Week_Start_Date
+FROM
+    CombinedSubscribers AS cs
+JOIN
+    VMobile_usage_records AS ur ON cs.Cell_Phone_Number = ur.MSISDN
+JOIN
+    VMobile_city_lookup AS l ON cs.[Location] = l.CITY_NAME
+WHERE
+    cs.Is_Master_Record = 1
+GROUP BY
+    l.City_Name,
+    CAST(DATEADD(week, DATEDIFF(week, 0, ur.usage_event_date_time), 0) AS DATE)
+HAVING
+    SUM(ur.USAGE_EVENT_REVENUE) >= 30
+ORDER BY
+    Total_Qualifying_Revenue DESC;
